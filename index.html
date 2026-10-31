@@ -1,0 +1,1126 @@
+<!DOCTYPE html>
+<html lang="ta">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Tamil OCR - தமிழ் ஆவண மாற்றி</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Tamil:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --primary: #6a11cb;
+            --primary-dark: #4a0da3;
+            --secondary: #2575fc;
+            --accent: #ff6b6b;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --success: #28a745;
+            --warning: #ffc107;
+            --danger: #dc3545;
+            --gray: #6c757d;
+            --light-gray: #e9ecef;
+        }
+        
+        body {
+            font-family: 'Noto Sans Tamil', sans-serif;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            min-height: 100vh;
+            color: var(--dark);
+            line-height: 1.6;
+        }
+        
+        .tamil-text {
+            font-family: 'Noto Sans Tamil', sans-serif;
+            font-size: 1.1rem;
+            line-height: 1.8;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        /* Header Styles */
+        header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 700;
+            font-size: 1.5rem;
+            color: var(--primary);
+        }
+        
+        .logo-icon {
+            color: var(--primary);
+            font-size: 1.8rem;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+        }
+        
+        .nav-links a {
+            text-decoration: none;
+            color: var(--dark);
+            font-weight: 500;
+            transition: color 0.3s;
+            position: relative;
+        }
+        
+        .nav-links a:hover {
+            color: var(--primary);
+        }
+        
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--primary);
+            transition: width 0.3s;
+        }
+        
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+        
+        /* Hero Section */
+        .hero {
+            padding: 4rem 0;
+            text-align: center;
+            color: white;
+        }
+        
+        .hero h1 {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+            font-weight: 700;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+        
+        .hero p {
+            font-size: 1.3rem;
+            max-width: 700px;
+            margin: 0 auto 2rem;
+            opacity: 0.9;
+        }
+        
+        .highlight {
+            color: #ff8e8e;
+            font-weight: 700;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        
+        /* Main App Section */
+        .app-section {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            margin-bottom: 4rem;
+        }
+        
+        .app-header {
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            color: white;
+            padding: 2rem;
+            text-align: center;
+        }
+        
+        .app-header h2 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .app-content {
+            padding: 2rem;
+        }
+        
+        .input-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        @media (max-width: 768px) {
+            .input-section {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .input-card {
+            background: var(--light);
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s, box-shadow 0.3s;
+            border: 2px dashed transparent;
+        }
+        
+        .input-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            border-color: var(--primary);
+        }
+        
+        .input-card h3 {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 1rem;
+            color: var(--primary);
+        }
+        
+        .card-icon {
+            font-size: 1.5rem;
+        }
+        
+        .upload-area {
+            border: 2px dashed var(--gray);
+            border-radius: 10px;
+            padding: 2rem;
+            text-align: center;
+            transition: all 0.3s;
+            cursor: pointer;
+            margin-bottom: 1rem;
+        }
+        
+        .upload-area:hover {
+            border-color: var(--primary);
+            background: rgba(106, 17, 203, 0.05);
+        }
+        
+        .upload-area.drag-active {
+            border-color: var(--primary);
+            background: rgba(106, 17, 203, 0.1);
+        }
+        
+        .upload-icon {
+            font-size: 3rem;
+            color: var(--gray);
+            margin-bottom: 1rem;
+        }
+        
+        .upload-area:hover .upload-icon {
+            color: var(--primary);
+        }
+        
+        .preview-image {
+            max-width: 100%;
+            max-height: 200px;
+            border-radius: 10px;
+            margin-bottom: 1rem;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .text-input {
+            width: 100%;
+            height: 150px;
+            padding: 1rem;
+            border: 1px solid var(--light-gray);
+            border-radius: 10px;
+            resize: vertical;
+            font-family: 'Noto Sans Tamil', sans-serif;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+        
+        .text-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(106, 17, 203, 0.1);
+        }
+        
+        /* Buttons */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            color: white;
+            box-shadow: 0 4px 15px rgba(106, 17, 203, 0.3);
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(106, 17, 203, 0.4);
+        }
+        
+        .btn-outline {
+            background: transparent;
+            border: 2px solid var(--primary);
+            color: var(--primary);
+        }
+        
+        .btn-outline:hover {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .btn-full {
+            width: 100%;
+        }
+        
+        /* Result Section */
+        .result-section {
+            background: var(--light);
+            border-radius: 15px;
+            padding: 2rem;
+            margin-top: 2rem;
+        }
+        
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+        
+        .result-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .result-content {
+            background: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            min-height: 200px;
+            max-height: 400px;
+            overflow-y: auto;
+            box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+        
+        /* Features Section */
+        .features {
+            padding: 4rem 0;
+            background: white;
+        }
+        
+        .section-title {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+        
+        .section-title h2 {
+            font-size: 2.5rem;
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+        
+        .section-title p {
+            font-size: 1.2rem;
+            color: var(--gray);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+        
+        .feature-card {
+            background: var(--light);
+            border-radius: 15px;
+            padding: 2rem;
+            text-align: center;
+            transition: transform 0.3s, box-shadow 0.3s;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+        }
+        
+        .feature-icon {
+            font-size: 3rem;
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+        }
+        
+        .feature-card h3 {
+            margin-bottom: 1rem;
+            color: var(--dark);
+        }
+        
+        /* Footer */
+        footer {
+            background: var(--dark);
+            color: white;
+            padding: 3rem 0 2rem;
+        }
+        
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .footer-column h3 {
+            margin-bottom: 1.5rem;
+            position: relative;
+            padding-bottom: 10px;
+        }
+        
+        .footer-column h3::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 50px;
+            height: 2px;
+            background: var(--primary);
+        }
+        
+        .footer-links {
+            list-style: none;
+        }
+        
+        .footer-links li {
+            margin-bottom: 10px;
+        }
+        
+        .footer-links a {
+            color: var(--light-gray);
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        
+        .footer-links a:hover {
+            color: white;
+        }
+        
+        .copyright {
+            text-align: center;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--light-gray);
+        }
+        
+        /* Utility Classes */
+        .text-center {
+            text-align: center;
+        }
+        
+        .mt-2 {
+            margin-top: 2rem;
+        }
+        
+        .mb-2 {
+            margin-bottom: 2rem;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        /* Loading Animation */
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(106, 17, 203, 0.2);
+            border-top: 4px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Notification */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            border-radius: 10px;
+            color: white;
+            font-weight: 500;
+            z-index: 1001;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            transform: translateX(150%);
+            transition: transform 0.3s ease-out;
+        }
+        
+        .notification.show {
+            transform: translateX(0);
+        }
+        
+        .notification.success {
+            background: linear-gradient(to right, #00b09b, #96c93d);
+        }
+        
+        .notification.error {
+            background: linear-gradient(to right, #ff416c, #ff4b2b);
+        }
+        
+        .notification.info {
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+        }
+        
+        /* Tab Navigation */
+        .tab-nav {
+            display: flex;
+            border-bottom: 1px solid var(--light-gray);
+            margin-bottom: 1.5rem;
+        }
+        
+        .tab-button {
+            padding: 12px 24px;
+            background: none;
+            border: none;
+            font-weight: 500;
+            cursor: pointer;
+            position: relative;
+            transition: color 0.3s;
+        }
+        
+        .tab-button.active {
+            color: var(--primary);
+        }
+        
+        .tab-button.active::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: var(--primary);
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .api-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+        
+        .api-status.connected {
+            background: var(--success);
+            color: white;
+        }
+        
+        .api-status.disconnected {
+            background: var(--danger);
+            color: white;
+        }
+        
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+        
+        .api-status.connected .status-dot {
+            background: white;
+        }
+        
+        .api-status.disconnected .status-dot {
+            background: white;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        /* Text styling improvements */
+        .text-small {
+            font-size: 0.9rem;
+            color: var(--gray);
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="container">
+            <nav class="navbar">
+                <div class="logo">
+                    <i class="fas fa-language logo-icon"></i>
+                    <span>Smart Tamil OCR</span>
+                </div>
+                <div class="nav-links">
+                    <a href="#home">முகப்பு</a>
+                    <a href="#features">அம்சங்கள்</a>
+                    <a href="#about">எங்களைப் பற்றி</a>
+                    <a href="#contact">தொடர்பு</a>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero" id="home">
+        <div class="container">
+            <h1>Smart <span class="highlight">Tamil OCR</span></h1>
+            <p>கையால் எழுதப்பட்ட மற்றும் அச்சிடப்பட்ட தமிழ் ஆவணங்களை எண்ணிம வடிவமாக மாற்றவும்</p>
+            <a href="#app" class="btn btn-primary">
+                <i class="fas fa-rocket"></i>
+                இப்போது முயற்சிக்கவும்
+            </a>
+        </div>
+    </section>
+
+    <!-- Main App Section -->
+    <section class="app-section" id="app">
+        <div class="app-header">
+            <h2>உங்கள் தமிழ் ஆவணத்தை மாற்றவும்</h2>
+            <p>படம் பதிவேற்றவும் அல்லது நேரடியாக உரை உள்ளிடவும்</p>
+        </div>
+        <div class="container">
+            <div class="app-content">
+                <!-- API Status Indicator -->
+                <div id="apiStatus" class="api-status disconnected">
+                    <div class="status-dot"></div>
+                    <span>பின்னத்துடன் இணைக்கப்படவில்லை</span>
+                </div>
+                
+                <div class="tab-nav">
+                    <button class="tab-button active" data-tab="image-tab">
+                        <i class="fas fa-image"></i>
+                        படம் பதிவேற்றம்
+                    </button>
+                    <button class="tab-button" data-tab="text-tab">
+                        <i class="fas fa-font"></i>
+                        நேரடி உரை உள்ளீடு
+                    </button>
+                </div>
+                
+                <!-- Image Upload Tab -->
+                <div id="image-tab" class="tab-content active">
+                    <div class="input-section">
+                        <div class="input-card">
+                            <h3>
+                                <i class="fas fa-file-image card-icon"></i>
+                                படம் பதிவேற்றவும்
+                            </h3>
+                            <div class="upload-area" id="uploadArea">
+                                <i class="fas fa-cloud-upload-alt upload-icon"></i>
+                                <p>உங்கள் படத்தை இழுத்து விடவும் அல்லது கிளிக் செய்யவும்</p>
+                                <p class="text-small">JPG, PNG ஆகியவை ஆதரிக்கப்படுகின்றன</p>
+                            </div>
+                            <input type="file" id="fileInput" accept="image/*" class="hidden">
+                            <div id="imagePreview" class="hidden">
+                                <img id="previewImage" class="preview-image" src="" alt="Preview">
+                                <button id="clearImage" class="btn btn-outline btn-full">படத்தை அழிக்கவும்</button>
+                            </div>
+                            <button id="processImage" class="btn btn-primary btn-full mt-2 hidden">
+                                <i class="fas fa-cogs"></i>
+                                படத்தைச் செயல்படுத்தவும்
+                            </button>
+                        </div>
+                        
+                        <div class="input-card">
+                            <h3>
+                                <i class="fas fa-info-circle card-icon"></i>
+                                வழிமுறைகள்
+                            </h3>
+                            <ol class="tamil-text" style="padding-left: 1.5rem;">
+                                <li>தமிழ் உரை இருக்கும் படத்தை பதிவேற்றவும்</li>
+                                <li>படத்தின் தரம் நன்றாக இருக்கும்படி உறுதி செய்யவும்</li>
+                                <li>"படத்தைச் செயல்படுத்தவும்" என்பதைக் கிளிக் செய்யவும்</li>
+                                <li>பின்னத்தில் படியெடுக்கப்பட்ட உரையைப் பெறவும்</li>
+                                <li>வேர்ட் ஆவணமாகப் பதிவிறக்கம் செய்யவும்</li>
+                            </ol>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Text Input Tab -->
+                <div id="text-tab" class="tab-content">
+                    <div class="input-section">
+                        <div class="input-card">
+                            <h3>
+                                <i class="fas fa-font card-icon"></i>
+                                நேரடி உரை உள்ளீடு
+                            </h3>
+                            <textarea class="text-input tamil-text" id="textInput" placeholder="உங்கள் தமிழ் உரையை இங்கே தட்டச்சு செய்யவும் அல்லது ஒட்டவும்..."></textarea>
+                            <button id="processText" class="btn btn-primary btn-full mt-2">
+                                <i class="fas fa-file-word"></i>
+                                வேர்ட் ஆவணமாக மாற்றவும்
+                            </button>
+                        </div>
+                        
+                        <div class="input-card">
+                            <h3>
+                                <i class="fas fa-info-circle card-icon"></i>
+                                வழிமுறைகள்
+                            </h3>
+                            <ol class="tamil-text" style="padding-left: 1.5rem;">
+                                <li>தமிழ் உரையை நேரடியாக உள்ளிடவும் அல்லது ஒட்டவும்</li>
+                                <li>உரையின் துல்லியத்தை சரிபார்க்கவும்</li>
+                                <li>"வேர்ட் ஆவணமாக மாற்றவும்" என்பதைக் கிளிக் செய்யவும்</li>
+                                <li>பின்னத்தில் உருவாக்கப்பட்ட வேர்ட் ஆவணத்தைப் பதிவிறக்கம் செய்யவும்</li>
+                            </ol>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Result Section -->
+                <div class="result-section">
+                    <div class="result-header">
+                        <h3>மாற்றப்பட்ட உரை</h3>
+                        <div class="result-actions">
+                            <button id="copyText" class="btn btn-outline">
+                                <i class="fas fa-copy"></i>
+                                நகலெடு
+                            </button>
+                            <button id="downloadDoc" class="btn btn-primary">
+                                <i class="fas fa-file-word"></i>
+                                வேர்ட் ஆவணம்
+                            </button>
+                        </div>
+                    </div>
+                    <div class="result-content">
+                        <div id="resultPlaceholder">
+                            <p class="text-center tamil-text">மாற்றப்பட்ட உரை இங்கே தோன்றும்</p>
+                        </div>
+                        <div id="resultText" class="hidden tamil-text"></div>
+                        <div id="loadingIndicator" class="hidden">
+                            <div class="spinner"></div>
+                            <p class="text-center mt-2" id="loadingText">உரையை படியெடுக்கிறது...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features" id="features">
+        <div class="container">
+            <div class="section-title">
+                <h2>எங்கள் தனித்துவமான அம்சங்கள்</h2>
+                <p>கையால் எழுதப்பட்ட மற்றும் அச்சிடப்பட்ட தமிழ் உரையை மாற்றுவதற்கான முழுமையான தீர்வு</p>
+            </div>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <i class="fas fa-hand-paper feature-icon"></i>
+                    <h3>கையெழுத்து ஆதரவு</h3>
+                    <p class="tamil-text">கையால் எழுதப்பட்ட தமிழ் உரையை துல்லியமாக படியெடுக்கும் மேம்பட்ட AI</p>
+                </div>
+                <div class="feature-card">
+                    <i class="fas fa-file-word feature-icon"></i>
+                    <h3>வேர்ட் ஆவணம்</h3>
+                    <p class="tamil-text">மாற்றப்பட்ட உரையை நேரடியாக எடிட்ட் செய்யக்கூடிய வேர்ட் ஆவணமாகப் பதிவிறக்கம் செய்யவும்</p>
+                </div>
+                <div class="feature-card">
+                    <i class="fas fa-font feature-icon"></i>
+                    <h3>தமிழ் யுனிகோட்</h3>
+                    <p class="tamil-text">அனைத்து சாதனங்களிலும் சரியாகக் காட்டப்படும் தமிழ் யுனிகோட் உரை</p>
+                </div>
+                <div class="feature-card">
+                    <i class="fas fa-magic feature-icon"></i>
+                    <h3>வடிவமைப்பைப் பாதுகாத்தல்</h3>
+                    <p class="tamil-text">பத்திகள், வரிகள் மற்றும் அமைப்பு போன்ற அசல் வடிவமைப்பைப் பாதுகாக்கிறது</p>
+                </div>
+                <div class="feature-card">
+                    <i class="fas fa-bolt feature-icon"></i>
+                    <h3>விரைவான செயலாக்கம்</h3>
+                    <p class="tamil-text">மேம்பட்ட அல்காரிதம் மூலம் விரைவான மற்றும் துல்லியமான உரை மாற்றம்</p>
+                </div>
+                <div class="feature-card">
+                    <i class="fas fa-history feature-icon"></i>
+                    <h3>பாரம்பரியப் பாதுகாப்பு</h3>
+                    <p class="tamil-text">பழைய தமிழ் கையெழுத்துப் பிரதிகள் மற்றும் வரலாற்று ஆவணங்களைப் பாதுகாக்க உதவுகிறது</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer id="contact">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-column">
+                    <h3>Smart Tamil OCR</h3>
+                    <p class="tamil-text">கையால் எழுதப்பட்ட மற்றும் அச்சிடப்பட்ட தமிழ் ஆவணங்களை எண்ணிம வடிவமாக மாற்றுவதற்கான முன்னணி தீர்வு.</p>
+                </div>
+                <div class="footer-column">
+                    <h3>தொடர்பு</h3>
+                    <ul class="footer-links">
+                        <li><i class="fas fa-envelope"></i> info@tamilocr.com</li>
+                        <li><i class="fas fa-phone"></i> +91 98765 43210</li>
+                        <li><i class="fas fa-map-marker-alt"></i> சென்னை, தமிழ்நாடு</li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>பயனுள்ள இணைப்புகள்</h3>
+                    <ul class="footer-links">
+                        <li><a href="#home">முகப்பு</a></li>
+                        <li><a href="#features">அம்சங்கள்</a></li>
+                        <li><a href="#about">எங்களைப் பற்றி</a></li>
+                        <li><a href="#privacy">தனியுரிமைக் கொள்கை</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="copyright">
+                <p>&copy; 2023 Smart Tamil OCR. அனைத்து உரிமைகளும் பாதுகாக்கப்பட்டவை.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Notification -->
+    <div id="notification" class="notification">
+        <span id="notificationText"></span>
+    </div>
+
+    <script>
+        // Backend API Configuration
+        const API_BASE_URL = window.location.origin.startsWith('http') ? `${window.location.origin}/api` : 'http://localhost:5000/api';
+        
+        // DOM Elements
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const imagePreview = document.getElementById('imagePreview');
+        const previewImage = document.getElementById('previewImage');
+        const clearImage = document.getElementById('clearImage');
+        const processImage = document.getElementById('processImage');
+        const textInput = document.getElementById('textInput');
+        const processText = document.getElementById('processText');
+        const resultPlaceholder = document.getElementById('resultPlaceholder');
+        const resultText = document.getElementById('resultText');
+        const loadingIndicator = document.getElementById('loadingIndicator');
+        const loadingText = document.getElementById('loadingText');
+        const copyText = document.getElementById('copyText');
+        const downloadDoc = document.getElementById('downloadDoc');
+        const notification = document.getElementById('notification');
+        const notificationText = document.getElementById('notificationText');
+        const apiStatus = document.getElementById('apiStatus');
+        const tabButtons = document.querySelectorAll('.tab-button');
+        const tabContents = document.querySelectorAll('.tab-content');
+
+        // Sample Tamil text for demonstration
+        const sampleTamilText = "தமிழ் என்பது ஒரு செம்மொழி. இது இந்தியாவின் தமிழ்நாடு மாநிலத்தின் அதிகாரப்பூர்வ மொழியாகும். இது இலங்கை, சிங்கப்பூர் போன்ற நாடுகளிலும் பேசப்படுகிறது. தமிழ் மொழிக்கு சுமார் 2000 ஆண்டுகள் பழமையான இலக்கிய பாரம்பரியம் உள்ளது.";
+
+        // Initialize application
+        document.addEventListener('DOMContentLoaded', function() {
+            checkBackendConnection();
+            textInput.value = sampleTamilText;
+        });
+
+        // Event Listeners
+        uploadArea.addEventListener('click', () => fileInput.click());
+        uploadArea.addEventListener('dragover', handleDragOver);
+        uploadArea.addEventListener('dragleave', handleDragLeave);
+        uploadArea.addEventListener('drop', handleDrop);
+        fileInput.addEventListener('change', handleFileSelect);
+        clearImage.addEventListener('click', clearSelectedImage);
+        processImage.addEventListener('click', processSelectedImage);
+        processText.addEventListener('click', processInputText);
+        copyText.addEventListener('click', copyResultText);
+        downloadDoc.addEventListener('click', downloadWordDocument);
+        
+        // Tab Navigation
+        tabButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const tabId = button.getAttribute('data-tab');
+                
+                // Update active tab button
+                tabButtons.forEach(btn => btn.classList.remove('active'));
+                button.classList.add('active');
+                
+                // Show active tab content
+                tabContents.forEach(content => content.classList.remove('active'));
+                document.getElementById(tabId).classList.add('active');
+            });
+        });
+
+        // Backend Connection Check
+        async function checkBackendConnection() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/health`);
+                if (response.ok) {
+                    apiStatus.className = 'api-status connected';
+                    apiStatus.innerHTML = '<div class="status-dot"></div><span>பின்னத்துடன் இணைக்கப்பட்டது</span>';
+                    showNotification('பின்னத்துடன் வெற்றிகரமாக இணைக்கப்பட்டது', 'success');
+                } else {
+                    throw new Error('Backend not responding properly');
+                }
+            } catch (error) {
+                apiStatus.className = 'api-status disconnected';
+                apiStatus.innerHTML = '<div class="status-dot"></div><span>பின்னத்துடன் இணைக்கப்படவில்லை</span>';
+                showNotification('பின்னத்துடன் இணைக்க முடியவில்லை. தயவுசெய்து பின்னத்தைத் தொடங்கவும்.', 'error');
+            }
+        }
+
+        // Functions
+        function handleDragOver(e) {
+            e.preventDefault();
+            uploadArea.classList.add('drag-active');
+        }
+
+        function handleDragLeave(e) {
+            e.preventDefault();
+            uploadArea.classList.remove('drag-active');
+        }
+
+        function handleDrop(e) {
+            e.preventDefault();
+            uploadArea.classList.remove('drag-active');
+            
+            if (e.dataTransfer.files.length) {
+                handleFiles(e.dataTransfer.files);
+            }
+        }
+
+        function handleFileSelect(e) {
+            if (e.target.files.length) {
+                handleFiles(e.target.files);
+            }
+        }
+
+        let currentSelectedFile = null;
+
+        function handleFiles(files) {
+            const file = files[0];
+            
+            if (file && file.type.startsWith('image/')) {
+                currentSelectedFile = file;
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    previewImage.src = e.target.result;
+                    imagePreview.classList.remove('hidden');
+                    processImage.classList.remove('hidden');
+                    uploadArea.classList.add('hidden');
+                };
+                reader.readAsDataURL(file);
+            } else {
+                showNotification('தயவுசெய்து ஒரு பட கோப்பைத் தேர்ந்தெடுக்கவும்!', 'error');
+            }
+        }
+
+        function clearSelectedImage() {
+            fileInput.value = '';
+            currentSelectedFile = null;
+            imagePreview.classList.add('hidden');
+            processImage.classList.add('hidden');
+            uploadArea.classList.remove('hidden');
+        }
+
+        async function processSelectedImage() {
+            const imageToProcess = currentSelectedFile || (fileInput.files && fileInput.files[0]);
+            if (!imageToProcess) {
+                showNotification('தயவுசெய்து முதலில் ஒரு படத்தைப் பதிவேற்றவும்!', 'error');
+                return;
+            }
+
+            showLoading('உரையை படியெடுக்கிறது...');
+            
+            try {
+                const formData = new FormData();
+                formData.append('image', imageToProcess);
+                
+                const response = await fetch(`${API_BASE_URL}/ocr`, {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                
+                hideLoading();
+                showResult(data.text);
+                showNotification('படத்திலிருந்து உரை வெற்றிகரமாக பிரித்தெடுக்கப்பட்டது!', 'success');
+            } catch (error) {
+                hideLoading();
+                console.error('OCR processing error:', error);
+                showNotification('படத்தை செயலாக்கும் போது பிழை: ' + error.message, 'error');
+            }
+        }
+
+        async function processInputText() {
+            const text = textInput.value.trim();
+            
+            if (!text) {
+                showNotification('தயவுசெய்து உரையை உள்ளிடவும்!', 'error');
+                return;
+            }
+
+            showLoading('வேர்ட் ஆவணத்தை உருவாக்குகிறது...');
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/text-to-docx`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ text: text })
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'tamil-document.docx';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                window.URL.revokeObjectURL(url);
+                
+                hideLoading();
+                showResult(text);
+                showNotification('வேர்ட் ஆவணம் வெற்றிகரமாக பதிவிறக்கம் செய்யப்பட்டது!', 'success');
+            } catch (error) {
+                hideLoading();
+                console.error('Word document creation error:', error);
+                showNotification('வேர்ட் ஆவணத்தை உருவாக்கும் போது பிழை: ' + error.message, 'error');
+            }
+        }
+
+        async function downloadWordDocument() {
+            const text = resultText.textContent;
+            
+            if (!text) {
+                showNotification('பதிவிறக்கம் செய்ய எந்த உரையும் இல்லை!', 'error');
+                return;
+            }
+
+            showLoading('வேர்ட் ஆவணத்தை உருவாக்குகிறது...');
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/text-to-docx`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ text: text })
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'tamil-ocr-result.docx';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                window.URL.revokeObjectURL(url);
+                
+                hideLoading();
+                showNotification('வேர்ட் ஆவணம் வெற்றிகரமாக பதிவிறக்கம் செய்யப்பட்டது!', 'success');
+            } catch (error) {
+                hideLoading();
+                console.error('Word document download error:', error);
+                showNotification('வேர்ட் ஆவணத்தை பதிவிறக்கும் போது பிழை: ' + error.message, 'error');
+            }
+        }
+
+        function copyResultText() {
+            const text = resultText.textContent;
+            
+            if (text) {
+                navigator.clipboard.writeText(text)
+                    .then(() => {
+                        showNotification('உரை நகலெடுக்கப்பட்டது!', 'success');
+                    })
+                    .catch(err => {
+                        console.error('Failed to copy text: ', err);
+                        showNotification('உரையை நகலெடுக்க முடியவில்லை!', 'error');
+                    });
+            } else {
+                showNotification('நகலெடுக்க எந்த உரையும் இல்லை!', 'error');
+            }
+        }
+
+        function showLoading(message = 'செயலாக்கத்தில் உள்ளது...') {
+            loadingText.textContent = message;
+            resultPlaceholder.classList.add('hidden');
+            resultText.classList.add('hidden');
+            loadingIndicator.classList.remove('hidden');
+        }
+
+        function hideLoading() {
+            loadingIndicator.classList.add('hidden');
+        }
+
+        function showResult(text) {
+            resultText.textContent = text;
+            resultText.classList.remove('hidden');
+        }
+
+        function showNotification(message, type) {
+            notificationText.textContent = message;
+            notification.className = `notification ${type} show`;
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 4000);
+        }
+    </script>
+</body>
+</html>
